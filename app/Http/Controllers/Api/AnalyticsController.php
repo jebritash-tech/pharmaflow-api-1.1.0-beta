@@ -56,17 +56,17 @@ class AnalyticsController extends Controller
     private function salesProfitChart()
     {
         return DB::table('sales')
-            ->selectRaw('MONTH(created_at) month')
-            ->selectRaw('SUM(total_amount) sales')
-            ->selectRaw('SUM(profit_amount) profit')
+            ->selectRaw('EXTRACT(MONTH FROM created_at) as month')
+            ->selectRaw('SUM(total_amount) as sales')
+            ->selectRaw('SUM(profit_amount) as profit')
             ->whereYear('created_at', now()->year)
-            ->groupByRaw('MONTH(created_at)')
-            ->orderByRaw('MONTH(created_at)')
+            ->groupByRaw('EXTRACT(MONTH FROM created_at)')
+            ->orderByRaw('EXTRACT(MONTH FROM created_at)')
             ->get()
             ->map(function ($row) {
 
                 $row->month = Carbon::create()
-                    ->month($row->month)
+                    ->month((int) $row->month)
                     ->locale('ar')
                     ->translatedFormat('F');
 
@@ -77,36 +77,38 @@ class AnalyticsController extends Controller
     private function growthChart()
     {
         $months = DB::table('sales')
-            ->selectRaw('MONTH(created_at) month')
-            ->selectRaw('SUM(total_amount) sales')
+            ->selectRaw('EXTRACT(MONTH FROM created_at) as month')
+            ->selectRaw('SUM(total_amount) as sales')
             ->whereYear('created_at', now()->year)
-            ->groupByRaw('MONTH(created_at)')
-            ->orderByRaw('MONTH(created_at)')
+            ->groupByRaw('EXTRACT(MONTH FROM created_at)')
+            ->orderByRaw('EXTRACT(MONTH FROM created_at)')
             ->get();
-
+    
         $result = [];
-
+    
         foreach ($months as $index => $month)
         {
             if ($index == 0) {
                 $growth = 0;
             } else {
+    
                 $previous = $months[$index - 1]->sales;
-
+    
                 $growth = $previous > 0
                     ? (($month->sales - $previous) / $previous) * 100
                     : 0;
             }
-
+    
             $result[] = [
                 'month' => Carbon::create()
-                    ->month($month->month)
+                    ->month((int) $month->month)
                     ->locale('ar')
                     ->translatedFormat('F'),
+    
                 'growth' => round($growth, 2)
             ];
         }
-
+    
         return $result;
     }
 
@@ -215,18 +217,18 @@ class AnalyticsController extends Controller
     private function peakHours()
     {
         return DB::table('sales')
-            ->selectRaw('HOUR(created_at) hour')
-            ->selectRaw('COUNT(*) invoices')
-            ->groupByRaw('HOUR(created_at)')
-            ->orderByRaw('HOUR(created_at)')
+            ->selectRaw('EXTRACT(HOUR FROM created_at) as hour')
+            ->selectRaw('COUNT(*) as invoices')
+            ->groupByRaw('EXTRACT(HOUR FROM created_at)')
+            ->orderByRaw('EXTRACT(HOUR FROM created_at)')
             ->get()
             ->map(function ($row) {
-
+    
                 $row->hour = Carbon::createFromTime(
-                    $row->hour,
+                    (int) $row->hour,
                     0
                 )->format('H:i');
-
+    
                 return $row;
             });
     }
