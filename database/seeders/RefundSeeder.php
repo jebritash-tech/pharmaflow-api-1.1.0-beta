@@ -9,11 +9,12 @@ class RefundSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach(range(1,50) as $i){
 
+        foreach(range(1,50) as $i){
+            $saleIds = \App\Models\Sale::pluck('id');
             DB::table('refunds')->insert([
 
-                'sale_id' => rand(1,2500),
+                'sale_id' => $saleIds->random(),
 
                 'amount' => rand(100,5000),
 
