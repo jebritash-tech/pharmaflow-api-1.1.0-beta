@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             MedicineBatchSeeder::class,
             PurchaseSeeder::class,
             SaleSeeder::class,
-            //RefundSeeder::class,
+            RefundSeeder::class,
         ]);
     }
 }
