@@ -24,7 +24,7 @@ class SupplierSeeder extends Seeder
 
             DB::table('suppliers')->insert([
                 'name' => $supplier,
-                'phone' => fake()->phoneNumber(),
+                'phone' => "0968390877",
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
